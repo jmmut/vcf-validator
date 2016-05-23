@@ -21,8 +21,37 @@ endmacro (declare_mod)
 declare_mod (vcf)
 
 # Dependency libraries
+if (BUILD_STATIC)
+  set(Boost_USE_STATIC_LIBS ON) # only find static libs
+endif (BUILD_STATIC)
 find_package (Boost COMPONENTS filesystem program_options regex system REQUIRED )
 include_directories (${Boost_INCLUDE_DIR} )
+
+
+# reference: http://stackoverflow.com/questions/7876753/reusing-custom-makefile-for-static-library-with-cmake
+# set the output destination
+set(ROCKSDB_LIBRARY ${CMAKE_CURRENT_SOURCE_DIR}/rocksdb_test/rocksdb/librocksdb.a)
+# create a custom target called build_rocksdb that is part of ALL
+# and will run each time you type make
+add_custom_target(build_rocksdb ALL
+        COMMAND ./build_rocksdb.sh
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        COMMENT "Original rocksdb makefile target")
+# now create an imported static target
+add_library(rocksdb STATIC IMPORTED)
+# Import target "rocksdb" for configuration ""
+set_property(TARGET rocksdb APPEND PROPERTY IMPORTED_CONFIGURATIONS NOCONFIG)
+set_target_properties(rocksdb PROPERTIES
+        IMPORTED_LOCATION_NOCONFIG "${ROCKSDB_LIBRARY}")
+# now you can use rocksdb as if it were a regular cmake built target in your project
+add_dependencies(rocksdb build_rocksdb)
+include_directories (${CMAKE_CURRENT_SOURCE_DIR}/rocksdb_test/rocksdb/include)
+
+# note, this will only work on linux/unix platforms, also it does building
+# in the source tree which is also sort of bad style and keeps out of source
+# builds from working.
+
+find_package (Threads REQUIRED)
 
 # Static build extra flags
 if (BUILD_STATIC)
@@ -34,8 +63,7 @@ if (BUILD_STATIC)
   set (CMAKE_SHARED_LIBRARY_C_FLAGS)         # remove -fPIC
   set (CMAKE_SHARED_LIBRARY_CXX_FLAGS)
   set (CMAKE_SHARED_LIBRARY_LINK_C_FLAGS)    # remove -rdynamic
-  set (CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS) 
-  find_package (Threads REQUIRED)
+  set (CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS)
 endif (BUILD_STATIC)
 
 # Application tests
@@ -48,3 +76,14 @@ add_test (NAME ValidatorTests COMMAND test_validator)
 # Build binary
 add_executable (vcf_validator src/main.cpp)
 target_link_libraries (vcf_validator mod_vcf ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+
+
+add_executable (test_rocksdb_simple_example rocksdb_test/simple_example.cc)
+target_link_libraries (test_rocksdb_simple_example mod_vcf ${Boost_LIBRARIES} rocksdb z snappy ${CMAKE_THREAD_LIBS_INIT})
+
+
+
+add_executable (test_rocksdb_benchmark rocksdb_test/benchmark.cpp)
+target_link_libraries (test_rocksdb_benchmark mod_vcf ${Boost_LIBRARIES} rocksdb z snappy ${CMAKE_THREAD_LIBS_INIT})
+
+
