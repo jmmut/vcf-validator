@@ -30,7 +30,7 @@ include_directories (${Boost_INCLUDE_DIR} )
 
 # reference: http://stackoverflow.com/questions/7876753/reusing-custom-makefile-for-static-library-with-cmake
 # set the output destination
-set(ROCKSDB_LIBRARY ${CMAKE_CURRENT_SOURCE_DIR}/rocksdb_test/rocksdb/librocksdb.a)
+set(ROCKSDB_LIBRARY ${CMAKE_CURRENT_SOURCE_DIR}/lib/rocksdb/librocksdb.a)
 # create a custom target called build_rocksdb that is part of ALL
 # and will run each time you type make
 add_custom_target(build_rocksdb ALL
@@ -45,7 +45,7 @@ set_target_properties(rocksdb PROPERTIES
         IMPORTED_LOCATION_NOCONFIG "${ROCKSDB_LIBRARY}")
 # now you can use rocksdb as if it were a regular cmake built target in your project
 add_dependencies(rocksdb build_rocksdb)
-include_directories (${CMAKE_CURRENT_SOURCE_DIR}/rocksdb_test/rocksdb/include)
+include_directories (${CMAKE_CURRENT_SOURCE_DIR}/lib/rocksdb/include)
 
 # note, this will only work on linux/unix platforms, also it does building
 # in the source tree which is also sort of bad style and keeps out of source

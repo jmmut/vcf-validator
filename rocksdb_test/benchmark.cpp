@@ -5,6 +5,7 @@
 #include <cstdio>
 #include <string>
 #include <iostream>
+#include <cmath>
 
 #include "rocksdb/db.h"
 #include "rocksdb/slice.h"
@@ -23,18 +24,23 @@ int main(int argc, char ** argv) {
   options.create_if_missing = true;
   std::string kDBPath = argc == 2 ? std::string(argv[1]) : "/tmp/rocksdb_simple_example";
 
-
   // open DB
   Status s = DB::Open(options, kDBPath, &db);
   assert(s.ok());
 
   int lines = 10000000;
-  for (int i = 0; i < lines; i++) {
+  int transactionSize = 1000;
+  int written = 0;
+  for (int i = 0; i < std::ceil(double(lines)/transactionSize); i++) {
+    WriteBatch batch;
+    for (int j = 0; j < transactionSize; ++j) {
+      batch.Put(std::to_string(written), "Generic error message");
+      written++;
+    }
+    s = db->Write(WriteOptions(), &batch);
     // Put key-value
-    s = db->Put(WriteOptions(), std::to_string(i), "Generic error message");
     assert(s.ok());
   }
-
   std::string value;
   // get value
 
@@ -46,7 +52,7 @@ int main(int argc, char ** argv) {
     assert(s.ok());
 
 //    assert(value == "value");
-    }
+  }
 /*
   // atomically apply a set of updates
   {
