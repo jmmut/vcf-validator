@@ -6,7 +6,7 @@ set (vcf-validator_VERSION_MINOR 5)
 set (vcf-validator_VERSION_PATCH 0)
 
 # no unknown pragmas: ODB compiler uses some pragmas that the regular compiler doesn't need
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wno-unknown-pragmas")
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall -Wno-unknown-pragmas")
 # Needed to statically link ODB
 set (CMAKE_C_FLAGS " -DSQLITE_ENABLE_UNLOCK_NOTIFY -DSQLITE_OMIT_LOAD_EXTENSION")
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
