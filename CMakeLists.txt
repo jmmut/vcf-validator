@@ -115,6 +115,8 @@ if (BUILD_STATIC)
   set (CMAKE_SHARED_LIBRARY_LINK_C_FLAGS)    # remove -rdynamic
   set (CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS)
   set(Boost_USE_STATIC_LIBS ON) # only find static libs
+else (BUILD_STATIC)
+  add_definitions (-DBOOST_ALL_DYN_LINK=1)
 endif (BUILD_STATIC)
 
 # Dependency libraries
