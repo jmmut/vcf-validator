@@ -121,7 +121,7 @@ else (BUILD_STATIC)
 endif (BUILD_STATIC)
 
 # Dependency libraries
-find_package (Boost COMPONENTS filesystem program_options regex log system REQUIRED )
+find_package (Boost COMPONENTS filesystem program_options regex log thread system REQUIRED )
 include_directories (${Boost_INCLUDE_DIR} )
 
 add_library(sqlite3 lib/sqlite/sqlite3.c)
